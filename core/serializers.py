@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from core.models import User
+from core.models import User, Post, PostsFeedBack
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -12,6 +12,9 @@ class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
 
     def create(self, validated_data):
+        """
+        If don't implement, password will be not hashing
+        """
         user = User.objects.create_user(
             email=validated_data['email'],
             password=validated_data['password'],
@@ -20,4 +23,37 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ("id", "email", "password",)
+        fields = ('id', 'email', 'password')
+
+
+class PostSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = Post
+        fields = '__all__'
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        post = Post.objects.create(user=user, **validated_data)
+        return post
+
+
+class PostsFeedBackSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = PostsFeedBack
+        fields = '__all__'
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        post_id = validated_data['post']
+        try:
+            PostsFeedBack.objects.get(user=user, post_id=post_id)
+            raise serializers.ValidationError(
+                f'Feedback exists for post with id:"{post_id}" and user:"{user}"!'
+            )
+        except PostsFeedBack.DoesNotExist:
+            post = PostsFeedBack.objects.create(user=user, **validated_data)
+            return post
