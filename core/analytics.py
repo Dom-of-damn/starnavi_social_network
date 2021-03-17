@@ -4,7 +4,7 @@ from django.db.models.functions import TruncDay
 from core.models import PostsFeedBack
 
 
-def get_analytics(date_from, date_to):
+def get_like_analytics(date_from, date_to):
     """
     Implements statistics of likes in day.
     :return: list which contains dicts with statistics values.

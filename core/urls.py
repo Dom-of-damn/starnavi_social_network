@@ -12,7 +12,7 @@ from core.views import (
 )
 
 urlpatterns = [
-    path('api/analytics/', FeedbackAnalyticsApiView.as_view(), name='analytics'),
+    path('api/post/analytics/', FeedbackAnalyticsApiView.as_view(), name='analytics'),
     path('api/post/create/', CreatePostView.as_view(), name='create_post'),
     path('api/post/list/', ListPostView.as_view(), name='post_list'),
     path('api/post/feedback/', PostsFeedbackListCreateAPIView.as_view(), name='feedback_get_or_create'),

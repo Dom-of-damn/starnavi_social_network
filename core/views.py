@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from core.analytics import get_analytics
+from core.analytics import get_like_analytics
 from core.models import User, Post, PostsFeedBack
 from core.serializers import (
     UserSerializer,
@@ -68,7 +68,7 @@ class FeedbackAnalyticsApiView(APIView):
     def get(self, request):
         date_from = request.query_params.get('date_from')
         date_to = request.query_params.get('date_to')
-        data = get_analytics(date_from, date_to)
+        data = get_like_analytics(date_from, date_to)
         serializer = self.serializer_class(data, many=True)
         return Response(serializer.data)
 
