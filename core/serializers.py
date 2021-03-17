@@ -1,3 +1,4 @@
+from activity_log.models import ActivityLog
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
@@ -57,3 +58,19 @@ class PostsFeedBackSerializer(serializers.ModelSerializer):
         except PostsFeedBack.DoesNotExist:
             post = PostsFeedBack.objects.create(user=user, **validated_data)
             return post
+
+
+class FeedbackAnalyticsSerializer(serializers.Serializer):
+    day = serializers.DateTimeField()
+    count = serializers.IntegerField()
+
+
+class ResponseActivityLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ActivityLog
+        fields = ['request_url', 'request_method', 'response_code', 'datetime']
+
+
+class UserActivitySerializer(serializers.Serializer):
+    last_login = serializers.DateTimeField()
+    last_response = ResponseActivityLogSerializer()

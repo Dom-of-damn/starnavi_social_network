@@ -1,8 +1,18 @@
+from activity_log.models import ActivityLog
+from rest_framework import status
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView, ListCreateAPIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
+from core.analytics import get_analytics
 from core.models import User, Post, PostsFeedBack
-from core.serializers import UserSerializer, PostSerializer, PostsFeedBackSerializer
+from core.serializers import (
+    UserSerializer,
+    PostSerializer,
+    PostsFeedBackSerializer,
+    FeedbackAnalyticsSerializer, UserActivitySerializer
+)
 
 
 class CreateUserView(CreateAPIView):
@@ -46,3 +56,39 @@ class PostsFeedbackUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = PostsFeedBackSerializer
     queryset = PostsFeedBack.objects.all()
+
+
+class FeedbackAnalyticsApiView(APIView):
+    """
+    Implements feedback analytics of users posts feedback in
+    range(date_from,date_to)
+    """
+    serializer_class = FeedbackAnalyticsSerializer
+
+    def get(self, request):
+        date_from = request.query_params.get('date_from')
+        date_to = request.query_params.get('date_to')
+        data = get_analytics(date_from, date_to)
+        serializer = self.serializer_class(data, many=True)
+        return Response(serializer.data)
+
+
+class UserActivityApiView(APIView):
+    """
+    Implements getting user activity by email of user.
+    """
+    serializer_class = UserActivitySerializer
+
+    def get(self, request):
+        user_email = request.query_params.get('email')
+        try:
+            user = User.objects.get(email=user_email)
+        except User.DoesNotExist:
+            return Response([], status=status.HTTP_400_BAD_REQUEST)
+        else:
+            data = {
+                'last_login': user.last_login,
+                'last_response': ActivityLog.objects.filter(user=user).last()
+            }
+            serializer = self.serializer_class(data)
+            return Response(serializer.data)

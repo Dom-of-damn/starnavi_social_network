@@ -8,6 +8,7 @@ Django = "==3.1.7"
 djangorestframework = "==3.12.2"
 psycopg2-binary = "==2.8.6"
 djangorestframework-simplejwt = "==4.6.0"
+django-user-activity-log2 = "==0.0.24"
 
 [dev-packages]
 
