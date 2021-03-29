@@ -93,5 +93,6 @@ class UserActivityApiView(APIView):
             }
             print(data)
             print(data)
+            print(data)
             serializer = self.serializer_class(data)
             return Response(serializer.data)
