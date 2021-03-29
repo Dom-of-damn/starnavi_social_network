@@ -92,5 +92,6 @@ class UserActivityApiView(APIView):
                 'last_response': ActivityLog.objects.filter(user=user).last()
             }
             print(data)
+            print(data)
             serializer = self.serializer_class(data)
             return Response(serializer.data)
