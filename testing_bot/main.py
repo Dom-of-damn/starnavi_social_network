@@ -9,10 +9,10 @@ logger.add('debug.log', format='{time} {level} {message}', level='DEBUG', rotati
 
 
 class Client:
-    def __init__(self, email, password, max_likes):
+    def __init__(self, email, password, max_reactions):
         self.email = email,
         self.password = password
-        self.max_likes = max_likes
+        self.max_reactions = max_reactions
         self.token = None
         self.base_url = 'http://127.0.0.1:8000/'
         self.posts_list = None
@@ -63,7 +63,7 @@ class Client:
                 'text': TestSocialNetworkApi.get_random_string()
             })
 
-    def set_posts_lists(self):
+    def set_posts_list(self):
         url = 'api/post/list/'
         response = self.send_request(
             method='GET',
@@ -75,14 +75,14 @@ class Client:
 
     def post_reaction(self):
         url = self.base_url + 'api/post/feedback/'
-        count_of_available_reaction = random.randint(1, self.max_likes)
+        count_of_available_reaction = random.randint(1, self.max_reactions)
         count_of_reaction = 0
         reaction = [True, False]
-        for item in self.posts_list:
+        for post in self.posts_list:
             self.send_request(
                 method='POST',
                 url=url,
-                data={'post': int(item['id']), 'like': random.choice(reaction)}
+                data={'post': int(post['id']), 'like': random.choice(reaction)}
             )
             count_of_reaction += 1
             if count_of_reaction == count_of_available_reaction:
@@ -92,31 +92,31 @@ class Client:
 class TestSocialNetworkApi:
     number_of_users = 0
     max_posts_per_user = 0
-    max_likes_per_user = 0
+    max_reactions_per_user = 0
 
     def _set_settings(self):
         with open('settings.json') as file:
             data = json.load(file)
-            self.max_likes_per_user = data['max_likes_per_user']
+            self.max_reactions_per_user = data['max_reactions_per_user']
             self.max_posts_per_user = data['max_posts_per_user']
             self.number_of_users = data['number_of_users']
 
     @staticmethod
     def get_random_string():
         letters = string.ascii_lowercase
-        return ''.join(random.choice(letters) for i in range(10))
+        return ''.join(random.choice(letters) for _ in range(10))
 
     def run_test(self):
         self._set_settings()
-        for user in range(self.number_of_users):
+        for _ in range(self.number_of_users):
             email = self.get_random_string() + '@gmail.com'
             password = 'xFPATHCeWA6wWxYH'
-            new_user = Client(email=email, password=password, max_likes=self.max_likes_per_user)
+            new_user = Client(email=email, password=password, max_reactions=self.max_reactions_per_user)
             new_user.sign_up()
             new_user.log_in()
-            new_user.set_posts_lists()
+            new_user.set_posts_list()
             count_of_available_creation_posts = random.randint(1, self.max_posts_per_user)
-            for index in range(count_of_available_creation_posts):
+            for _ in range(count_of_available_creation_posts):
                 new_user.post_creation()
             new_user.post_reaction()
         logger.info('Testing is over!')

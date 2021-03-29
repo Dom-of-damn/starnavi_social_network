@@ -11,7 +11,8 @@ from core.serializers import (
     UserSerializer,
     PostSerializer,
     PostsFeedBackSerializer,
-    FeedbackAnalyticsSerializer, UserActivitySerializer
+    FeedbackAnalyticsSerializer,
+    UserActivitySerializer
 )
 
 
@@ -90,5 +91,6 @@ class UserActivityApiView(APIView):
                 'last_login': user.last_login,
                 'last_response': ActivityLog.objects.filter(user=user).last()
             }
+            print(data)
             serializer = self.serializer_class(data)
             return Response(serializer.data)
